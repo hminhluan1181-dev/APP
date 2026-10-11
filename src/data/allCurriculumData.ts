@@ -1,21 +1,23 @@
 import { UploadedDocument, MatrixRowItem, SpecSheetRow, GradeLevel, Subject, WorkspaceState } from '../types';
 import { KHTN_FULL_LIBRARY, SAMPLE_KHTN_HOA_8 } from './khtnChemistryData';
-import { KHTN_PHYSICS_LIBRARY } from './khtnPhysicsData';
-import { KHTN_BIOLOGY_LIBRARY } from './khtnBiologyData';
-import { CONG_NGHE_7_LIBRARY } from './congNghe7Data';
 import { DEFAULT_UPLOADED_DOCUMENTS } from './defaultData';
 
 /**
  * Danh mục hợp nhất toàn bộ tài liệu SGK, SBT, SGV của bộ sách Kết Nối Tri Thức Với Cuộc Sống
  * Bao gồm đầy đủ 4 khối lớp 6, 7, 8, 9 cho các phân môn Hóa học, Vật lí, Sinh học và môn Công nghệ 7
  */
-export const ALL_CURRICULUM_DOCUMENTS: UploadedDocument[] = [
-  ...KHTN_FULL_LIBRARY,
-  ...KHTN_PHYSICS_LIBRARY,
-  ...KHTN_BIOLOGY_LIBRARY,
-  ...CONG_NGHE_7_LIBRARY,
-  ...DEFAULT_UPLOADED_DOCUMENTS.filter(d => !d.id.startsWith('doc-sgk-khtn'))
-];
+export const ALL_CURRICULUM_DOCUMENTS: UploadedDocument[] = (() => {
+  const combined: UploadedDocument[] = [
+    ...KHTN_FULL_LIBRARY,
+    ...DEFAULT_UPLOADED_DOCUMENTS.filter(d => !d.id.startsWith('doc-sgk-khtn'))
+  ];
+  const seenIds = new Set<string>();
+  return combined.filter(doc => {
+    if (seenIds.has(doc.id)) return false;
+    seenIds.add(doc.id);
+    return true;
+  });
+})();
 
 export interface LessonSelectionItem {
   id: string;

@@ -1,5 +1,6 @@
 import { DocumentChapter, Subject, GradeLevel, CurriculumSeries } from '../types';
 import { ExtractedLessonItem } from './bookLessonParser';
+import { resolveIllustrationsForLessonActivities } from '../data/digitalMaterials';
 
 export interface DetailedLessonActivity {
   code: 'ACT_1' | 'ACT_2' | 'ACT_3' | 'ACT_4';
@@ -207,6 +208,15 @@ export function generateDetailedLessonContent(
     }
   ];
 
+  // Tạo hình ảnh minh họa sư phạm riêng biệt, chuẩn xác theo bài học
+  const resolvedIlls = resolveIllustrationsForLessonActivities({
+    subject,
+    grade,
+    lessonName: chapter.lessonName,
+    docName: `SGK ${subject} ${grade} Kết Nối Tri Thức`,
+    pageEstimate: 10 + (parseInt(lessonNumStr, 10) || 1) * 6
+  });
+
   // 3. Tiến trình 4 hoạt động dạy học 5512
   const activities5512: DetailedLessonActivity[] = [
     {
@@ -223,16 +233,7 @@ export function generateDetailedLessonContent(
         step4_conclude: `GV nhận xét thái độ học tập, tổng hợp các ý kiến chưa thống nhất để dẫn dắt trực tiếp vào Bài ${lessonNumStr}: ${lessonTitle}.`
       },
       studentNotes: `* HIỆN TƯỢNG VÀ TÌNH HUỐNG MỞ ĐẦU:\n- Quan sát tình huống thực tế hoặc thí nghiệm gợi mở về ${lessonTitle}.\n- Đặt câu hỏi nghiên cứu: Bản chất và quy luật khoa học nào chi phối hiện tượng này?`,
-      illustrations: [
-        {
-          id: `gen-ill-1-${lessonNumStr}`,
-          caption: `Hình 1: Tình huống / thí nghiệm thực tiễn mở đầu (${lessonTitle})`,
-          url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&auto=format&fit=crop&q=80',
-          description: `Hình ảnh trực quan khơi gợi tư duy khoa học về chủ đề ${lessonTitle}.`,
-          type: 'experiment',
-          source: `SGK môn ${subject} ${grade} - NXB GDVN (hanhtrangso.nxbgd.vn)`
-        }
-      ]
+      illustrations: resolvedIlls.act1
     },
     {
       code: 'ACT_2',
@@ -248,16 +249,7 @@ export function generateDetailedLessonContent(
         step4_conclude: 'GV chuẩn hóa kiến thức trên màn hình trình chiếu; yêu cầu học sinh ghi chép những kết luận cốt lõi vào vở.'
       },
       studentNotes: `I. NỘI DUNG BÀI HỌC CỐT LÕI (HỌC SINH GHI VÀO VỞ):\n1. Khái niệm / Định nghĩa chuẩn SGK Kết Nối Tri Thức:\n- ${lessonTitle} là nội dung nền tảng theo chuẩn GDPT 2018 môn ${subject} ${grade}.\n\n2. Các luận điểm trọng tâm:\n${keyPoints.map((kp, i) => `  ${i + 1}. ${kp}`).join('\n')}\n\n3. Quy tắc / Phương trình / Công thức then chốt:\n- Ghi nhớ các định nghĩa, quy tắc và công thức được đóng khung trong SGK.\n- Chú ý các điều kiện áp dụng và đơn vị đo chuẩn.`,
-      illustrations: [
-        {
-          id: `gen-ill-2-${lessonNumStr}`,
-          caption: `Hình 2: Sơ đồ kiến thức cốt lõi và mô hình khoa học (${lessonTitle})`,
-          url: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600&auto=format&fit=crop&q=80',
-          description: `Sơ đồ cấu tạo và cơ chế khoa học theo SGK Kết Nối Tri Thức.`,
-          type: 'diagram',
-          source: `SGK môn ${subject} ${grade} - NXB GDVN (hanhtrangso.nxbgd.vn)`
-        }
-      ]
+      illustrations: resolvedIlls.act2
     },
     {
       code: 'ACT_3',
@@ -273,16 +265,7 @@ export function generateDetailedLessonContent(
         step4_conclude: 'GV chốt đáp án chính xác, phân tích lỗi sai điển hình mà học sinh dễ mắc phải để rút kinh nghiệm.'
       },
       studentNotes: `II. BÀI TẬP VÀ PHƯƠNG PHÁP GIẢI (HỌC SINH CHÉP LỜI GIẢI MẪU):\n* Phương pháp giải bài tập ${lessonTitle}:\n- Bước 1: Tóm tắt đề bài, xác định dữ kiện đã cho và đại lượng cần tìm.\n- Bước 2: Vận dụng kiến thức, quy tắc hoặc công thức trọng tâm đã học ở Hoạt động 2.\n- Bước 3: Trình bày bài giải rõ ràng, ghi rõ đơn vị và kết luận.`,
-      illustrations: [
-        {
-          id: `gen-ill-3-${lessonNumStr}`,
-          caption: `Hình 3: Sơ đồ phương pháp và các bước giải bài tập mẫu`,
-          url: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&auto=format&fit=crop&q=80',
-          description: `Bảng tóm tắt thuật giải và lưu ý tránh sai lầm trong bài làm.`,
-          type: 'chart',
-          source: `SGK môn ${subject} ${grade} - NXB GDVN (hanhtrangso.nxbgd.vn)`
-        }
-      ]
+      illustrations: resolvedIlls.act3
     },
     {
       code: 'ACT_4',
@@ -297,7 +280,8 @@ export function generateDetailedLessonContent(
         step3_report: 'Học sinh nộp sản phẩm qua nhóm học tập trực tuyến hoặc báo cáo vào đầu tiết học tiếp theo.',
         step4_conclude: 'GV dặn dò chuẩn bị cho bài học mới trong SGK Kết Nối Tri Thức.'
       },
-      studentNotes: `III. VẬN DỤNG THỰC TIỄN VÀ HƯỚNG DẪN TỰ HỌC (GHI VÀO VỞ):\n- Vận dụng kiến thức ${lessonTitle} vào việc giải thích các hiện tượng thực tiễn hoặc thực hiện sản phẩm ứng dụng.\n- Đọc trước bài học mới trong SGK Kết Nối Tri Thức và chuẩn bị học liệu theo hướng dẫn của giáo viên.`
+      studentNotes: `III. VẬN DỤNG THỰC TIỄN VÀ HƯỚNG DẪN TỰ HỌC (GHI VÀO VỞ):\n- Vận dụng kiến thức ${lessonTitle} vào việc giải thích các hiện tượng thực tiễn hoặc thực hiện sản phẩm ứng dụng.\n- Đọc trước bài học mới trong SGK Kết Nối Tri Thức và chuẩn bị học liệu theo hướng dẫn của giáo viên.`,
+      illustrations: resolvedIlls.act4
     }
   ];
 

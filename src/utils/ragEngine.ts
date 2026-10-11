@@ -16,7 +16,7 @@ import {
   SpecSheetRow,
   MatrixRowItem
 } from '../types';
-import { HTS_DIGITAL_ILLUSTRATIONS, findRelevantDigitalIllustrations } from '../data/digitalMaterials';
+import { HTS_DIGITAL_ILLUSTRATIONS, findRelevantDigitalIllustrations, resolveIllustrationsForLessonActivities } from '../data/digitalMaterials';
 
 /**
  * Hàm chuẩn hóa văn bản tiếng Việt để tìm kiếm ngữ nghĩa không phụ thuộc dấu / chữ hoa
@@ -415,189 +415,21 @@ export function getCuratedIllustrationsForLesson(
   subject: Subject,
   lessonName: string,
   docName: string,
-  pageEstimate: number
+  pageEstimate: number,
+  grade: GradeLevel = 'Lớp 8'
 ): {
   act1?: LessonIllustration[];
   act2?: LessonIllustration[];
   act3?: LessonIllustration[];
   act4?: LessonIllustration[];
 } {
-  // Ưu tiên tra cứu từ Kho học liệu số Hành Trang Số (hanhtrangso.nxbgd.vn)
-  const exactHtsMatches = findRelevantDigitalIllustrations({
+  return resolveIllustrationsForLessonActivities({
     subject,
-    lessonName
+    grade,
+    lessonName,
+    docName,
+    pageEstimate
   });
-
-  if (exactHtsMatches.length >= 2) {
-    const mapHts = (item: typeof exactHtsMatches[0], idx: number): LessonIllustration => ({
-      id: `hts-ill-${item.id}-${idx}`,
-      caption: item.caption,
-      url: item.url,
-      description: item.description,
-      type: item.type,
-      source: item.source
-    });
-
-    return {
-      act1: exactHtsMatches[0] ? [mapHts(exactHtsMatches[0], 1)] : undefined,
-      act2: exactHtsMatches.slice(1, 3).map((item, i) => mapHts(item, i + 2)),
-      act3: exactHtsMatches[3] ? [mapHts(exactHtsMatches[3], 4)] : undefined,
-      act4: exactHtsMatches[4] ? [mapHts(exactHtsMatches[4], 5)] : undefined
-    };
-  }
-
-  const normSub = normalizeViText(subject);
-  const normName = normalizeViText(lessonName);
-
-  if (normSub.includes('hoa hoc') || normName.includes('hoa') || normName.includes('acid') || normName.includes('base') || normName.includes('phan ung') || normName.includes('nguyen to') || normName.includes('nguyen tu') || normName.includes('oxit') || normName.includes('muoi') || normName.includes('dung dich') || normName.includes('mol') || normName.includes('nong do')) {
-    return {
-      act1: [{
-        id: `ill-act1-${Date.now()}`,
-        caption: `Hình 1: Thí nghiệm thực tiễn mở đầu bài học (SGK ${docName} - Trang ${pageEstimate})`,
-        url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&auto=format&fit=crop&q=80',
-        description: 'Ống nghiệm thí nghiệm thực nghiệm tạo sự chú ý và mâu thuẫn nhận thức cho học sinh.',
-        type: 'experiment',
-        source: `${docName} - Trang ${pageEstimate}`
-      }],
-      act2: [
-        {
-          id: `ill-act2-1-${Date.now()}`,
-          caption: `Hình 2: Mô hình cấu trúc hạt / phân tử và cơ chế biến đổi hóa học`,
-          url: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=600&auto=format&fit=crop&q=80',
-          description: 'Mô hình liên kết và trật tự sắp xếp nguyên tử theo SGK Kết Nối Tri Thức GDPT 2018.',
-          type: 'molecule',
-          source: `${docName} - Trang ${pageEstimate + 1}`
-        },
-        {
-          id: `ill-act2-2-${Date.now()}`,
-          caption: `Hình 3: Sơ đồ lắp ráp thiết bị thí nghiệm kiểm chứng tính chất hóa học`,
-          url: 'https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=600&auto=format&fit=crop&q=80',
-          description: 'Thiết bị thí nghiệm thu khí hoặc chuẩn độ theo hướng dẫn sách giáo khoa.',
-          type: 'diagram',
-          source: `${docName} - Trang ${pageEstimate + 2}`
-        }
-      ],
-      act3: [{
-        id: `ill-act3-${Date.now()}`,
-        caption: `Hình 4: Bảng số liệu thực nghiệm và sơ đồ củng cố bài tập`,
-        url: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=600&auto=format&fit=crop&q=80',
-        description: 'Bảng theo dõi hiện tượng và phương trình phản ứng hóa học rèn luyện kỹ năng.',
-        type: 'chart',
-        source: `${docName} - Trang ${pageEstimate + 3}`
-      }]
-    };
-  }
-
-  if (normSub.includes('vat li') || normName.includes('luc') || normName.includes('chuyen dong') || normName.includes('nang luong') || normName.includes('dien') || normName.includes('quang') || normName.includes('nhiet') || normName.includes('ap suat') || normName.includes('van toc')) {
-    return {
-      act1: [{
-        id: `ill-act1-${Date.now()}`,
-        caption: `Hình 1: Hiện tượng vật lí thực tiễn mở đầu bài học (SGK ${docName} - Trang ${pageEstimate})`,
-        url: 'https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?w=600&auto=format&fit=crop&q=80',
-        description: 'Mô hình vật lí cơ học kích thích sự tò mò và đặt vấn đề nghiên cứu.',
-        type: 'experiment',
-        source: `${docName} - Trang ${pageEstimate}`
-      }],
-      act2: [
-        {
-          id: `ill-act2-1-${Date.now()}`,
-          caption: `Hình 2: Sơ đồ nguyên lí và thiết bị đo thực nghiệm trong SGK`,
-          url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80',
-          description: 'Sơ đồ mạch điện / lực kế / quang học theo chuẩn SGK Kết Nối Tri Thức GDPT 2018.',
-          type: 'diagram',
-          source: `${docName} - Trang ${pageEstimate + 1}`
-        },
-        {
-          id: `ill-act2-2-${Date.now()}`,
-          caption: `Hình 3: Đồ thị biểu diễn mối quan hệ giữa các đại lượng vật lí`,
-          url: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=600&auto=format&fit=crop&q=80',
-          description: 'Đồ thị thực nghiệm rút ra định luật vật lí.',
-          type: 'chart',
-          source: `${docName} - Trang ${pageEstimate + 2}`
-        }
-      ]
-    };
-  }
-
-  if (normSub.includes('sinh hoc') || normName.includes('te bao') || normName.includes('quang hop') || normName.includes('di truyen') || normName.includes('adn') || normName.includes('sinh thai') || normName.includes('co the') || normName.includes('vi sinh vat')) {
-    return {
-      act1: [{
-        id: `ill-act1-${Date.now()}`,
-        caption: `Hình 1: Hình ảnh hiển vi sinh học mở đầu bài học (SGK ${docName} - Trang ${pageEstimate})`,
-        url: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=600&auto=format&fit=crop&q=80',
-        description: 'Hình chụp dưới kính hiển vi quang học gợi mở cấu trúc sống.',
-        type: 'photo',
-        source: `${docName} - Trang ${pageEstimate}`
-      }],
-      act2: [
-        {
-          id: `ill-act2-1-${Date.now()}`,
-          caption: `Hình 2: Sơ đồ cấu tạo và cơ chế sinh học theo SGK`,
-          url: 'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?w=600&auto=format&fit=crop&q=80',
-          description: 'Sơ đồ cấu trúc chi tiết bám sát bài học SGK Kết Nối Tri Thức.',
-          type: 'diagram',
-          source: `${docName} - Trang ${pageEstimate + 1}`
-        },
-        {
-          id: `ill-act2-2-${Date.now()}`,
-          caption: `Hình 3: Quá trình chuyển hóa và chu trình sinh học tự nhiên`,
-          url: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=600&auto=format&fit=crop&q=80',
-          description: 'Minh họa hiện tượng sinh học trong giới tự nhiên.',
-          type: 'photo',
-          source: `${docName} - Trang ${pageEstimate + 2}`
-        }
-      ]
-    };
-  }
-
-  if (normSub.includes('toan')) {
-    return {
-      act1: [{
-        id: `ill-act1-${Date.now()}`,
-        caption: `Hình 1: Hình ảnh thực tế gợi mở mô hình toán học (SGK ${docName} - Trang ${pageEstimate})`,
-        url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=600&auto=format&fit=crop&q=80',
-        description: 'Tình huống thực tế minh họa trực quan ứng dụng toán học.',
-        type: 'photo',
-        source: `${docName} - Trang ${pageEstimate}`
-      }],
-      act2: [{
-        id: `ill-act2-${Date.now()}`,
-        caption: `Hình 2: Đồ thị hàm số và sơ đồ biểu diễn trên hệ tọa độ Oxy`,
-        url: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&auto=format&fit=crop&q=80',
-        description: 'Hình vẽ minh họa định lý và dạng đồ thị trong SGK Kết Nối Tri Thức.',
-        type: 'diagram',
-        source: `${docName} - Trang ${pageEstimate + 1}`
-      }],
-      act3: [{
-        id: `ill-act3-${Date.now()}`,
-        caption: `Hình 3: Sơ đồ thuật toán và các bước giải toán mẫu`,
-        url: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&auto=format&fit=crop&q=80',
-        description: 'Sơ đồ tóm tắt thuật giải và điểm đặc biệt trên đồ thị / hình học.',
-        type: 'diagram',
-        source: `${docName} - Trang ${pageEstimate + 2}`
-      }]
-    };
-  }
-
-  // Mặc định hoặc KHTN / Công nghệ
-  return {
-    act1: [{
-      id: `ill-act1-${Date.now()}`,
-      caption: `Hình 1: Hiện tượng thực tiễn mở đầu bài học (SGK ${docName} - Trang ${pageEstimate})`,
-      url: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&auto=format&fit=crop&q=80',
-      description: 'Hình ảnh thực nghiệm mở đầu tạo hứng thú học tập.',
-      type: 'experiment',
-      source: `${docName} - Trang ${pageEstimate}`
-    }],
-    act2: [{
-      id: `ill-act2-${Date.now()}`,
-      caption: `Hình 2: Sơ đồ kiến thức cốt lõi và mô hình khoa học trong SGK`,
-      url: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=600&auto=format&fit=crop&q=80',
-      description: 'Sơ đồ trực quan bám sát bài học SGK Kết Nối Tri Thức GDPT 2018.',
-      type: 'diagram',
-      source: `${docName} - Trang ${pageEstimate + 1}`
-    }]
-  };
 }
 
 /**
@@ -688,11 +520,13 @@ export function enrichLessonPlanFromRag(
     ...(lessonPlan.equipments?.teacher?.filter(e => !e.includes('Sách giáo khoa') && !e.includes('Học liệu số')) || [])
   ];
 
+  const targetLessonName = lessonPlan.lessonName || matchedChapter.lessonName;
   const curatedIllustrations = getCuratedIllustrationsForLesson(
     lessonPlan.subject,
-    matchedChapter.lessonName,
+    targetLessonName,
     matchedDoc.name,
-    pageEstimate
+    pageEstimate,
+    lessonPlan.grade
   );
 
   // Chuẩn bị nội dung cốt lõi và trích dẫn bài học

@@ -530,7 +530,12 @@ ${details.sampleQuestions7991.map((q, i) => `Câu ${i + 1} [Mức độ: ${q.lev
 
   // Lọc tài liệu theo Khối lớp, Phân môn, Loại sách và Từ khóa tìm kiếm
   const filteredDocs = useMemo(() => {
+    const seenIds = new Set<string>();
     return documents.filter(doc => {
+      if (!doc || !doc.id || seenIds.has(doc.id)) {
+        return false;
+      }
+
       // 1. Lọc theo Khối lớp (Lớp 6, 7, 8, 9)
       if (selectedGradeFilter !== 'all' && doc.grade !== selectedGradeFilter) {
         return false;
@@ -571,6 +576,7 @@ ${details.sampleQuestions7991.map((q, i) => `Câu ${i + 1} [Mức độ: ${q.lev
         if (!matchDocName && !matchChapter) return false;
       }
 
+      seenIds.add(doc.id);
       return true;
     });
   }, [documents, selectedGradeFilter, selectedSubjectFilter, selectedDisciplineFilter, selectedCategory, searchKeyword]);

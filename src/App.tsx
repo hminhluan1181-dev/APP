@@ -40,9 +40,13 @@ import { VerificationHandoverModal } from './components/VerificationHandoverModa
 import { ChemistryUtilityModal } from './components/ChemistryUtilityModal';
 import { generateStaticSlideDeck } from './utils/slideGenerator';
 import { enrichLessonPlanFromRag, enrichExamFromRag } from './utils/ragEngine';
+import { ALL_CURRICULUM_DOCUMENTS } from './data/allCurriculumData';
 
 export default function App() {
-  const [workspaceState, setWorkspaceState] = useState<WorkspaceState>(SAMPLE_KHTN_HOA_8);
+  const [workspaceState, setWorkspaceState] = useState<WorkspaceState>({
+    ...SAMPLE_KHTN_HOA_8,
+    uploadedDocuments: ALL_CURRICULUM_DOCUMENTS
+  });
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isChemistryModalOpen, setIsChemistryModalOpen] = useState(false);

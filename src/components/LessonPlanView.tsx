@@ -933,7 +933,7 @@ export const LessonPlanView: React.FC<LessonPlanViewProps> = ({
                               type="button"
                               onClick={() => {
                                 setActiveAddIllActId(act.id);
-                                setModalTab('library');
+                                setModalTab('hanhtrangso');
                               }}
                               className="px-2.5 py-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
                             >
